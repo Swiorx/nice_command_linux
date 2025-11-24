@@ -12,13 +12,18 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    int nice_value = atoi(argv[1]);
-    char **command = &argv[2];
+    char *endptr;
+    long nice_value_long = strtol(argv[1], &endptr, 10);
+    if (endptr == argv[1] || *endptr != '\0') {
+        fprintf(stderr, "Invalid priority level or invalid characters.\n");
+        return 1;
+    }
+    int nice_value = nice_value_long;
 
     if(nice_value < -20 || nice_value > 19){
         fprintf(stderr,"Priority level must be between -20 and 19.\n");
         return 1;
-    }
+   }
 
     pid_t pid = fork();
 
@@ -34,7 +39,7 @@ int main(int argc, char *argv[]) {
         }
 
         else{
-            execvp(command[0], command);
+            execvp(argv[2], &argv[2]);
             perror("Execution failed");
             return 127;
         }
