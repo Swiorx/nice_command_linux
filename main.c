@@ -3,12 +3,18 @@
 #include <sys/resource.h>
 #include <stdlib.h>
 #include <sys/wait.h>
+#include <string.h>
 
 
 int main(int argc, char *argv[]) {
     
     if(argc < 3){
         fprintf(stderr,"Usage: %s priority_level command_to_execute -arg1 -arg2 ... -argn\n", argv[0]);
+        return 1;
+    }
+
+    if(!strcmp(argv[1], "")){
+        fprintf(stderr,"Invalid\n");
         return 1;
     }
 
@@ -28,26 +34,26 @@ int main(int argc, char *argv[]) {
     pid_t pid = fork();
 
     if(pid < 0) {
-        perror("Fork failed");
+        perror(argv[0]);
         return 1;
     }
 
     else if(pid == 0){
         if(setpriority(PRIO_PROCESS, 0, nice_value) == -1){
-            perror("Failed to set priority");
+            perror(argv[0]);
             return 1;
         }
 
         else{
             execvp(argv[2], &argv[2]);
-            perror("Execution failed");
+            perror(argv[0]);
             return 127;
         }
     }
 
     int status;
     if(waitpid(pid, &status, 0) == -1){
-        perror("Waitpid failed");
+        perror("argv[0]");
         return 1;
     }
 
